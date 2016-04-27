@@ -186,7 +186,7 @@
 					.append("g")
 					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 		
-		d3.csv("./data/cb1.csv", function(error, data) {
+		d3.csv("cb1.csv", function(error, data) {
 						var labelVar = "Time";
 			var varNames = d3.keys(data[0]).filter(function (key) { return key !== labelVar});//	RAM Usage	GPU Utilization	Memory Utilization
 			var overallName = d3.keys(data[0]).filter(function (key) { 
@@ -286,7 +286,7 @@
 				.text(function (d) { return d; });
 		});
 		
-		d3.csv("./data/cbx.csv", function(error, data) {
+		d3.csv("cbx.csv", function(error, data) {
 						var labelVar = "Time";
 			var varNames = d3.keys(data[0]).filter(function (key) { return key !== labelVar});//	RAM Usage	GPU Utilization	Memory Utilization
 			var overallName = d3.keys(data[0]).filter(function (key) { 
@@ -386,7 +386,7 @@
 					.append("g")
 					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 					
-		d3.csv("./data/heaven.csv", function(error, data) {
+		d3.csv("heaven.csv", function(error, data) {
 						var labelVar = "Time";
 			var varNames = d3.keys(data[0]).filter(function (key) { return key !== labelVar});//	RAM Usage	GPU Utilization	Memory Utilization
 			var overallName = d3.keys(data[0]).filter(function (key) { 
