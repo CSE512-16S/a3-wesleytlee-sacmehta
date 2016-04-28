@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link href="./css/nv.d3.css" rel="stylesheet" type="text/css">
+	<link href="./css/a3.css" rel="stylesheet" type="text/css">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="./js/nv.d3.js"></script>
+	
+</head>
+<body id='table'>
+<div class='container' id="div0">
+	<div class="col-sm-12 col-md-12">
+		<h1>Performance characterization of an APU</h1>
+		<p></p>
+	</div>
+</div>
+
+<br>
+
+<div class='col-sm-12 col-md-8' id="div1">
+		<div class="panel panel-card" id="div11">
+			<div class="panel-title" id="div11a">
+				<h5 class='no-margin m-b'>APU data for Application 1</h5>
+			</div>
+			<div class="panel-title" id="div11c">
+				<button type="button" class="button button1">View Trellis</button>
+			</div>
+			<div class="panel-body" id="div11b">
+				<div style="height:270px;" id="div11b1">
+					<svg id="chart1"></svg>
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-card" id="div12">
+			<div class="panel-title" id="div12a">
+				<h5 class='no-margin m-b'>APU data for Application 2</h5>
+			</div>
+			<div class="panel-title" id="div12c">
+				<button type="button" class="button button1">View Trellis</button>
+			</div>
+			<div class="panel-body" id="div12b">
+				<div style="height:270px;" id="div12b1">
+					<svg id="chart2"></svg>
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-card" id="div13">
+			<div class="panel-title" id="div13a">
+				<h5 class='no-margin m-b'>APU data for Application 3</h5>
+			</div>
+			<div class="panel-title" id="div13c">
+				<button type="button" class="button button1">View Trellis</button>
+			</div>
+			<div class="panel-body" id="div13b">
+				<div style="height:270px;" id="div13b1">
+					<svg id="chart3"></svg>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class='col-sm-12 col-md-4' id="div21">
+		<div class="panel panel-card" id="div211">
+			<div class="panel-title" id="div211a">
+				<h5 class='no-margin m-b'>Comparison between different applications</h5>
+			</div>
+			<div class="panel-body" id="div211b">
+				<div id="div211b1" style="height:280px;">
+					<svg id="chart4"></svg>
+				</div>
+			</div>
+		</div>
+	</div>
+
+<script>
+	var avgVal=[];
+	var cpu=[];
+	var ram=[];
+	var gpuUtil = [];
+	var memGPU = [];
+	var allCPU=[];
+	
+	var appWiseData = [];
+	
+    d3.csv("./data/cb1.csv", function(error, data) {
+		var labelVar = "Time";
+		var varNames = d3.keys(data[0]).filter(function (key) { return key !== labelVar});//	RAM Usage	GPU Utilization	Memory Utilization
+		var overallName = d3.keys(data[0]).filter(function (key) { 
+							if (key == "RAM Usage" || key == "GPU Utilization" || key ==  "Overall CPU Utilization" || key == "GPU Memory Utilization")
+								return key
+							});
+		
+		var cpuName = d3.keys(data[0]).filter(function (key) { 
+							if (key == "CPU 1"	|| key == "CPU 2" || key == "CPU 3" || key == "CPU 4" || key == "CPU 5" || key == "CPU 6" || key == "CPU 7" || key == "CPU 8")
+								return key
+							});
+		
+		allCPU = cpuName.map(function (name) {
+					  return {
+						key: name,
+						values: data.map(function (d, i) {
+							if(d[name] < 0.0001){
+								return [i+1, Number(.00001)];
+							}
+						  return [i+1, Number(d[name])];
+						})
+					  };
+					});
+							
+		var ramAvg =d3.mean(data, function(d){return d["RAM Usage"]});
+		var gpuUtilAvg = d3.mean(data, function(d){return d["GPU Utilization"]});
+		var cpuUtilAvg = d3.mean(data, function(d){return d["Overall CPU Utilization"]});
+		var gpuMemAvg = d3.mean(data, function(d){return d["GPU Memory Utilization"]});
+		
+		//avgVal.cpu.push({value: cpuUtilAvg, label: 1});
+		
+		cpu.push({label: "App 1", value: cpuUtilAvg});
+		ram.push({label: "App 1", value: ramAvg});
+		gpuUtil.push({label: "App 1", value: gpuUtilAvg})
+		memGPU.push({label: "App 1", value: gpuMemAvg})
+		
+		
+		
+		var seriesData = overallName.map(function (name) {
+					  return {
+						key: name,
+						values: data.map(function (d, i) {
+							if(d[name] < 0.0001){
+								return [i+1, Number(.00001)];
+							}
+						  return [i+1, Number(d[name])];
+						})
+					  };
+					});
+
+		//var seriesData = data;
+		var colors = d3.scale.category20();
+		nv.addGraph(function() {
+			var	chart = nv.models.lineChart()
+				.x(function(d) { return d[0] })
+				.y(function(d) { return d[1] })
+                .margin({left: 100})
+                .useInteractiveGuideline(true) 
+                .duration(100)
+                .showLegend(true)
+                .showYAxis(true)
+                .showXAxis(true);
+				
+			chart.xAxis.axisLabel('Time (in sec)').tickFormat(d3.format(',f'));
+
+			chart.yAxis.axisLabel('Utilization (in %)')	;
+			chart.yAxis.tickFormat(d3.format(',.0f'));
+
+			
+			//chart.legend.vers('furious');;;
+			d3.select("body").select("#div1").select("#div12").select("#div12b").select("#div12b1").select('#chart2')
+				.datum(seriesData)
+				.transition().duration(1000)
+				.call(chart)
+				.each('start', function() {
+					setTimeout(function() {
+						d3.selectAll('#chart1 *').each(function() {
+							if(this.__transition__)
+								this.__transition__.duration = 1;
+						})
+					}, 0)
+				});
+			nv.utils.windowResize(chart.update);
+			return chart;
+		});
+		loadB();
+	});
+	
+	function loadB(){
+	d3.csv("./data/cbx.csv", function(error, data) {
+		var labelVar = "Time";
+		var varNames = d3.keys(data[0]).filter(function (key) { return key !== labelVar});//	RAM Usage	GPU Utilization	Memory Utilization
+		var overallName = d3.keys(data[0]).filter(function (key) { 
+							if (key == "RAM Usage" || key == "GPU Utilization" || key ==  "Overall CPU Utilization" || key == "GPU Memory Utilization")
+								return key
+							});
+		
+		var ramAvg =d3.mean(data, function(d){return d["RAM Usage"]});
+		var gpuUtilAvg = d3.mean(data, function(d){return d["GPU Utilization"]});
+		var cpuUtilAvg = d3.mean(data, function(d){return d["Overall CPU Utilization"]});
+		var gpuMemAvg = d3.mean(data, function(d){return d["GPU Memory Utilization"]});
+		
+		cpu.push({label: "App 2", value: cpuUtilAvg});
+		ram.push({label: "App 2", value: ramAvg});
+		gpuUtil.push({label: "App 2", value: gpuUtilAvg})
+		memGPU.push({label: "App 2", value: gpuMemAvg})
+		
+		
+		var seriesData = overallName.map(function (name) {
+					  return {
+						key: name,
+						values: data.map(function (d, i) {
+							if(d[name] < 0.0001){
+								return [i+1, Number(.00001)];
+							}
+						  return [i+1, Number(d[name])];
+						})
+					  };
+					});
+	
+		//console.log(JSON.stringify(seriesData));
+		//var seriesData = data;
+		var colors = d3.scale.category20();
+		nv.addGraph(function() {
+			var	chart = nv.models.lineChart()
+				.x(function(d) { return d[0] })
+				.y(function(d) { return d[1] })
+                .margin({left: 100})
+                .useInteractiveGuideline(true) 
+                .duration(100)
+                .showLegend(true)
+                .showYAxis(true)
+                .showXAxis(true);
+				
+			chart.xAxis.axisLabel('Time (in sec)').tickFormat(d3.format(',f'));
+
+			chart.yAxis.axisLabel('Utilization (in %)')	;
+			chart.yAxis.tickFormat(d3.format(',.0f'));
+
+			
+			//chart.legend.vers('furious');;;
+			d3.select("body").select("#div1").select("#div11").select("#div11b").select("#div11b1").select('#chart1')
+				.datum(seriesData)
+				.transition().duration(1000)
+				.call(chart)
+				.each('start', function() {
+					setTimeout(function() {
+						d3.selectAll('#chart1 *').each(function() {
+							if(this.__transition__)
+								this.__transition__.duration = 1;
+						})
+					}, 0)
+				});
+			nv.utils.windowResize(chart.update);
+			return chart;
+		});
+		loadC();
+	});
+	}
+	function loadC(){
+	d3.csv("./data/heaven.csv", function(error, data) {
+		var labelVar = "Time";
+		var varNames = d3.keys(data[0]).filter(function (key) { return key !== labelVar});//	RAM Usage	GPU Utilization	Memory Utilization
+		var overallName = d3.keys(data[0]).filter(function (key) { 
+							if (key == "RAM Usage" || key == "GPU Utilization" || key ==  "Overall CPU Utilization" || key == "GPU Memory Utilization")
+								return key
+							});		
+		
+		var ramAvg =d3.mean(data, function(d){return d["RAM Usage"]});
+		var gpuUtilAvg = d3.mean(data, function(d){return d["GPU Utilization"]});
+		var cpuUtilAvg = d3.mean(data, function(d){return d["Overall CPU Utilization"]});
+		var gpuMemAvg = d3.mean(data, function(d){return d["GPU Memory Utilization"]});
+		
+		cpu.push({label: "App 3", value: cpuUtilAvg});
+		ram.push({label: "App 3", value: ramAvg});
+		gpuUtil.push({label: "App 3", value: gpuUtilAvg});
+		memGPU.push({label: "App 3", value: gpuMemAvg});
+		
+		var seriesData = overallName.map(function (name) {
+					  return {
+						key: name,
+						values: data.map(function (d, i) {
+							if(d[name] < 0.0001){
+								return [i+1, Number(.00001)];
+							}
+						  return [i+1, Number(d[name])];
+						})
+					  };
+					});
+	
+		//console.log(JSON.stringify(seriesData));
+		//var seriesData = data;
+		var colors = d3.scale.category20();
+		nv.addGraph(function() {
+			var	chart = nv.models.lineChart()
+				.x(function(d) { return d[0] })
+				.y(function(d) { return d[1] })
+                .margin({left: 100})
+                .useInteractiveGuideline(true) 
+                .duration(100)
+                .showLegend(true)
+                .showYAxis(true)
+                .showXAxis(true);
+				
+			chart.xAxis.axisLabel('Time (in sec)').tickFormat(d3.format(',f'));
+
+			chart.yAxis.axisLabel('Utilization (in %)')	;
+			chart.yAxis.tickFormat(d3.format(',.0f'));
+
+			
+			//chart.legend.vers('furious');;;
+			d3.select("body").select("#div1").select("#div13").select("#div13b").select("#div13b1").select('#chart3')
+				.datum(seriesData)
+				.transition().duration(1000)
+				.call(chart)
+				.each('start', function() {
+					setTimeout(function() {
+						d3.selectAll('#chart1 *').each(function() {
+							if(this.__transition__)
+								this.__transition__.duration = 1;
+						})
+					}, 0)
+				});
+			nv.utils.windowResize(chart.update);
+			return chart;
+		});
+		var keyV = {};
+		keyV["key"] = "Avg. CPU Utilization";
+		keyV["values"] = cpu;
+		avgVal.push(keyV);
+		var keyV = {};
+		keyV["key"] = "Avg. RAM Utilization";
+		keyV["values"] = ram;
+		avgVal.push(keyV);
+		var keyV = {};
+		keyV["key"] = "Avg. GPU Utilization";
+		keyV["values"] = gpuUtil;
+		avgVal.push(keyV);
+		var keyV = {};
+		keyV["key"] = "Avg. GPU Memory Utilization";
+		keyV["values"] = memGPU;
+		avgVal.push(keyV);
+		
+		plotAvg();
+	});
+	}
+	function plotAvgPie(){
+		nv.addGraph(function() {
+				console.log(cpu)
+				var chart = nv.models.pieChart()
+							.x(function(d) { return d.key })
+							.y(function(d) { return d.value })
+							.color(d3.scale.category20().range().slice(3))
+							.width(350)
+							.height(350)
+							.donut(true)
+							.id('donut2')
+							.padAngle(.08)
+							.titleOffset(-30)
+							.donutRatio(0.6);
+							
+				var chart1 = nv.models.pieChart()
+							.x(function(d) { return d.key })
+							.y(function(d) { return d.value })
+							.color(d3.scale.category20().range().slice(3))
+							.width(400)
+							.height(400)
+							.donut(true)
+							.id('donut2')
+							.titleOffset(-30)
+							.title("woot");
+				
+				chart.title("CPU Utilization");
+				chart.pie.donutLabelsOutside(true).donut(true);
+
+				d3.select("body").select("#div21").select("#div211").select("#div211b").select("#div211b1").select('#chart4')
+				  .datum(pieChartCPU)
+				  .transition().duration(1200)
+				  .call(chart);
+				
+				d3.select("body").select("#div21").select("#div211").select("#div211b").select("#div211b1").select('#chart5')
+				  .datum(pieChartCPU)
+				  .transition().duration(1200)
+				  .call(chart1);
+
+				nv.utils.windowResize(chart.update);
+
+				return chart;
+			});
+	}
+	function plotAvg(){
+		nv.addGraph(function() {
+				
+				//console.log(JSON.stringify(avgVal))
+				//console.log(JSON.stringify(appWiseData))
+				var chart = nv.models.multiBarChart()
+							.x(function(d) { return d.label })
+							.y(function(d) { return d.value })
+							.duration(350)
+							.reduceXTicks(true)
+							.rotateLabels(0) 
+							.showControls(true)
+							.groupSpacing(0.1);
+				chart.xAxis.axisLabel('Application');
+				chart.yAxis.axisLabel('Avg. Utilization (in %)');
+
+				d3.select("body").select("#div21").select("#div211").select("#div211b").select("#div211b1").select('#chart4')
+				  .datum(avgVal)
+				  .call(chart);
+
+				nv.utils.windowResize(chart.update);
+
+				return chart;
+			});
+	}
+	
+	function plotAvgMetric(){
+		nv.addGraph(function() {
+				var chart = nv.models.multiBarChart()
+							.x(function(d) { return d.label })
+							.y(function(d) { return d.value })
+							.duration(350)
+							.reduceXTicks(true)
+							.rotateLabels(0) 
+							.showControls(true)
+							.groupSpacing(0.1);
+				chart.xAxis.axisLabel('Application');
+				chart.yAxis.axisLabel('Avg. Utilization (in %)');
+
+				d3.select("body").select("#div21").select("#div211").select("#div211b").select("#div211b1").select('#chart4')
+				  .datum(avgVal)
+				  .call(chart);
+
+				nv.utils.windowResize(chart.update);
+
+				return chart;
+			});
+	}
+</script>
+</body>
+</html>
