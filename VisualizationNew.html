@@ -2,16 +2,18 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <link href="./css/nv.d3.css" rel="stylesheet" type="text/css">
+	<link href="./css/a3css.css" rel="stylesheet" type="text/css">
 	<link href="./css/a3.css" rel="stylesheet" type="text/css">
-    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-    <script src="./js/nv.d3.js"></script>
+    <link href="./css/nv.d3.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
 	
+    <script src="./js/d3.v3.min.js" charset="utf-8"></script>
+    <script src="./js/nv.d3.js"></script>
 </head>
 <body id='table'>
 <div class='container' id="div0">
 	<div class="col-sm-12 col-md-12">
-		<h1>Performance characterization of an APU</h1>
+		<h1>Performance characterization of CPU and GPU centric workloads</h1>
 		<p></p>
 	</div>
 </div>
@@ -21,11 +23,22 @@
 <div class='col-sm-12 col-md-8' id="div1">
 		<div class="panel panel-card" id="div11">
 			<div class="panel-title" id="div11a">
-				<h5 class='no-margin m-b'>APU data for Application 1</h5>
+				<h5 class='no-margin m-b'>CPU and GPU Utilization statistics for Application 1</h5>
 			</div>
 			<div class="panel-title" id="div11c">
-				<button type="button" class="button button1">View Trellis</button>
+				<button type="button" class="button button1" id="myBtn">View Details</button>
 			</div>
+			<div id="myModal" class="modal">
+
+				  <!-- Modal content -->
+				  <div class="modal-content">
+					<span class="close" id="close">x</span>
+						<div id="chart-container" class="panel panel-card">
+							<h2>Data in detail for Application 1</h2>
+						</div>
+				  </div>
+			</div>
+
 			<div class="panel-body" id="div11b">
 				<div style="height:270px;" id="div11b1">
 					<svg id="chart1"></svg>
@@ -34,11 +47,25 @@
 		</div>
 		<div class="panel panel-card" id="div12">
 			<div class="panel-title" id="div12a">
-				<h5 class='no-margin m-b'>APU data for Application 2</h5>
+				<h5 class='no-margin m-b'>CPU and GPU Utilization statistics for Application 2</h5>
 			</div>
 			<div class="panel-title" id="div12c">
-				<button type="button" class="button button1">View Trellis</button>
+				<button type="button" class="button button1" id="myBtn2">View Details</button>
 			</div>
+			
+			
+			<div id="myModal2" class="modal">
+
+				  <!-- Modal content -->
+				  <div class="modal-content">
+					<span class="close2">x</span>
+						<div id="chart-container2" class="panel panel-card">
+							<h2>Data in detail for Application 2</h2>
+						</div>
+				  </div>
+			</div>
+			
+			
 			<div class="panel-body" id="div12b">
 				<div style="height:270px;" id="div12b1">
 					<svg id="chart2"></svg>
@@ -47,11 +74,25 @@
 		</div>
 		<div class="panel panel-card" id="div13">
 			<div class="panel-title" id="div13a">
-				<h5 class='no-margin m-b'>APU data for Application 3</h5>
+				<h5 class='no-margin m-b'>CPU and GPU Utilization statistics for Application 3</h5>
 			</div>
 			<div class="panel-title" id="div13c">
-				<button type="button" class="button button1">View Trellis</button>
+				<button type="button" class="button button1" id="myBtn3">View Details</button>
 			</div>
+			
+			<div id="myModal3" class="modal">
+
+				  <!-- Modal content -->
+				  <div class="modal-content">
+					<span class="close3">x</span>
+					<div class="container">
+						<div id="chart-container3" class="panel panel-card">
+							<h2>Data in detail for Application 3</h2>
+						</div>
+					</div>
+				  </div>
+			</div>
+			
 			<div class="panel-body" id="div13b">
 				<div style="height:270px;" id="div13b1">
 					<svg id="chart3"></svg>
@@ -62,7 +103,7 @@
 	<div class='col-sm-12 col-md-4' id="div21">
 		<div class="panel panel-card" id="div211">
 			<div class="panel-title" id="div211a">
-				<h5 class='no-margin m-b'>Comparison between different applications</h5>
+				<h5 class='no-margin m-b'>Summary of CPU and GPU statistics across applications</h5>
 			</div>
 			<div class="panel-body" id="div211b">
 				<div id="div211b1" style="height:280px;">
@@ -79,38 +120,44 @@
 	var gpuUtil = [];
 	var memGPU = [];
 	var allCPU=[];
-	
 	var appWiseData = [];
+
+   function mod_tooltip (d) {
+       var html = "Time: <b>"+d.value+"</b>s <br>";
+
+       d.series.forEach(function(elem){
+         html += "<text style='color:"+elem.color+"'>"
+                 +elem.key+"</text> : <b>"+Math.round(elem.value)+"% </b> <br>";
+       })
+       return html;
+     }
+        
+    function renameVars (name) {
+        if (name == "ram") {
+            return "RAM Usage";
+        } else if (name == "gpuutil") {
+            return "GPU Utilization";
+        } else if (name == "cpu") {
+            return "Overall CPU Utilization";
+        } else {
+            return "GPU Memory Utilization";
+        }
+    }
+    
+    var my_colors = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c'];
 	
     d3.csv("./data/cb1.csv", function(error, data) {
 		var labelVar = "Time";
-		var varNames = d3.keys(data[0]).filter(function (key) { return key !== labelVar});//	RAM Usage	GPU Utilization	Memory Utilization
+		var varNames = d3.keys(data[0]).filter(function (key) { return key !== labelVar});//	ram	gpuutil	Memory Utilization
 		var overallName = d3.keys(data[0]).filter(function (key) { 
-							if (key == "RAM Usage" || key == "GPU Utilization" || key ==  "Overall CPU Utilization" || key == "GPU Memory Utilization")
+							if (key == "ram" || key == "gpuutil" || key ==  "cpu" || key == "gpumem")
 								return key
 							});
-		
-		var cpuName = d3.keys(data[0]).filter(function (key) { 
-							if (key == "CPU 1"	|| key == "CPU 2" || key == "CPU 3" || key == "CPU 4" || key == "CPU 5" || key == "CPU 6" || key == "CPU 7" || key == "CPU 8")
-								return key
-							});
-		
-		allCPU = cpuName.map(function (name) {
-					  return {
-						key: name,
-						values: data.map(function (d, i) {
-							if(d[name] < 0.0001){
-								return [i+1, Number(.00001)];
-							}
-						  return [i+1, Number(d[name])];
-						})
-					  };
-					});
 							
-		var ramAvg =d3.mean(data, function(d){return d["RAM Usage"]});
-		var gpuUtilAvg = d3.mean(data, function(d){return d["GPU Utilization"]});
-		var cpuUtilAvg = d3.mean(data, function(d){return d["Overall CPU Utilization"]});
-		var gpuMemAvg = d3.mean(data, function(d){return d["GPU Memory Utilization"]});
+		var ramAvg =d3.mean(data, function(d){return d["ram"]});
+		var gpuUtilAvg = d3.mean(data, function(d){return d["gpuutil"]});
+		var cpuUtilAvg = d3.mean(data, function(d){return d["cpu"]});
+		var gpuMemAvg = d3.mean(data, function(d){return d["gpumem"]});
 		
 		//avgVal.cpu.push({value: cpuUtilAvg, label: 1});
 		
@@ -123,7 +170,7 @@
 		
 		var seriesData = overallName.map(function (name) {
 					  return {
-						key: name,
+						key: renameVars(name),
 						values: data.map(function (d, i) {
 							if(d[name] < 0.0001){
 								return [i+1, Number(.00001)];
@@ -150,10 +197,13 @@
 
 			chart.yAxis.axisLabel('Utilization (in %)')	;
 			chart.yAxis.tickFormat(d3.format(',.0f'));
+         chart.interactiveLayer.tooltip.contentGenerator(mod_tooltip);
+         chart.duration(1000);
+         chart.color(my_colors);
 
 			
 			//chart.legend.vers('furious');;;
-			d3.select("body").select("#div1").select("#div12").select("#div12b").select("#div12b1").select('#chart2')
+			d3.select("body").select("#div1").select("#div11").select("#div11b").select("#div11b1").select('#chart1')
 				.datum(seriesData)
 				.transition().duration(1000)
 				.call(chart)
@@ -174,16 +224,16 @@
 	function loadB(){
 	d3.csv("./data/cbx.csv", function(error, data) {
 		var labelVar = "Time";
-		var varNames = d3.keys(data[0]).filter(function (key) { return key !== labelVar});//	RAM Usage	GPU Utilization	Memory Utilization
+		var varNames = d3.keys(data[0]).filter(function (key) { return key !== labelVar});//	ram	gpuutil	Memory Utilization
 		var overallName = d3.keys(data[0]).filter(function (key) { 
-							if (key == "RAM Usage" || key == "GPU Utilization" || key ==  "Overall CPU Utilization" || key == "GPU Memory Utilization")
+							if (key == "ram" || key == "gpuutil" || key ==  "cpu" || key == "gpumem")
 								return key
 							});
 		
-		var ramAvg =d3.mean(data, function(d){return d["RAM Usage"]});
-		var gpuUtilAvg = d3.mean(data, function(d){return d["GPU Utilization"]});
-		var cpuUtilAvg = d3.mean(data, function(d){return d["Overall CPU Utilization"]});
-		var gpuMemAvg = d3.mean(data, function(d){return d["GPU Memory Utilization"]});
+		var ramAvg =d3.mean(data, function(d){return d["ram"]});
+		var gpuUtilAvg = d3.mean(data, function(d){return d["gpuutil"]});
+		var cpuUtilAvg = d3.mean(data, function(d){return d["cpu"]});
+		var gpuMemAvg = d3.mean(data, function(d){return d["gpumem"]});
 		
 		cpu.push({label: "App 2", value: cpuUtilAvg});
 		ram.push({label: "App 2", value: ramAvg});
@@ -193,7 +243,7 @@
 		
 		var seriesData = overallName.map(function (name) {
 					  return {
-						key: name,
+						key: renameVars(name),
 						values: data.map(function (d, i) {
 							if(d[name] < 0.0001){
 								return [i+1, Number(.00001)];
@@ -221,10 +271,12 @@
 
 			chart.yAxis.axisLabel('Utilization (in %)')	;
 			chart.yAxis.tickFormat(d3.format(',.0f'));
-
+         chart.interactiveLayer.tooltip.contentGenerator(mod_tooltip);
+         chart.duration(1000);
+         chart.color(my_colors);
 			
 			//chart.legend.vers('furious');;;
-			d3.select("body").select("#div1").select("#div11").select("#div11b").select("#div11b1").select('#chart1')
+			d3.select("body").select("#div1").select("#div12").select("#div12b").select("#div12b1").select('#chart2')
 				.datum(seriesData)
 				.transition().duration(1000)
 				.call(chart)
@@ -243,18 +295,18 @@
 	});
 	}
 	function loadC(){
-	d3.csv("./data/heaven.csv", function(error, data) {
+		d3.csv("./data/heaven.csv", function(error, data) {
 		var labelVar = "Time";
-		var varNames = d3.keys(data[0]).filter(function (key) { return key !== labelVar});//	RAM Usage	GPU Utilization	Memory Utilization
+		var varNames = d3.keys(data[0]).filter(function (key) { return key !== labelVar});//	ram	gpuutil	Memory Utilization
 		var overallName = d3.keys(data[0]).filter(function (key) { 
-							if (key == "RAM Usage" || key == "GPU Utilization" || key ==  "Overall CPU Utilization" || key == "GPU Memory Utilization")
+							if (key == "ram" || key == "gpuutil" || key ==  "cpu" || key == "gpumem")
 								return key
 							});		
 		
-		var ramAvg =d3.mean(data, function(d){return d["RAM Usage"]});
-		var gpuUtilAvg = d3.mean(data, function(d){return d["GPU Utilization"]});
-		var cpuUtilAvg = d3.mean(data, function(d){return d["Overall CPU Utilization"]});
-		var gpuMemAvg = d3.mean(data, function(d){return d["GPU Memory Utilization"]});
+		var ramAvg =d3.mean(data, function(d){return d["ram"]});
+		var gpuUtilAvg = d3.mean(data, function(d){return d["gpuutil"]});
+		var cpuUtilAvg = d3.mean(data, function(d){return d["cpu"]});
+		var gpuMemAvg = d3.mean(data, function(d){return d["gpumem"]});
 		
 		cpu.push({label: "App 3", value: cpuUtilAvg});
 		ram.push({label: "App 3", value: ramAvg});
@@ -263,7 +315,7 @@
 		
 		var seriesData = overallName.map(function (name) {
 					  return {
-						key: name,
+						key: renameVars(name),
 						values: data.map(function (d, i) {
 							if(d[name] < 0.0001){
 								return [i+1, Number(.00001)];
@@ -291,7 +343,9 @@
 
 			chart.yAxis.axisLabel('Utilization (in %)')	;
 			chart.yAxis.tickFormat(d3.format(',.0f'));
-
+         chart.interactiveLayer.tooltip.contentGenerator(mod_tooltip);
+         chart.duration(1000);
+         chart.color(my_colors);
 			
 			//chart.legend.vers('furious');;;
 			d3.select("body").select("#div1").select("#div13").select("#div13b").select("#div13b1").select('#chart3')
@@ -310,68 +364,24 @@
 			return chart;
 		});
 		var keyV = {};
-		keyV["key"] = "Avg. CPU Utilization";
+		keyV["key"] = "CPU Utilization";
 		keyV["values"] = cpu;
 		avgVal.push(keyV);
 		var keyV = {};
-		keyV["key"] = "Avg. RAM Utilization";
+		keyV["key"] = "RAM Usage";
 		keyV["values"] = ram;
 		avgVal.push(keyV);
 		var keyV = {};
-		keyV["key"] = "Avg. GPU Utilization";
+		keyV["key"] = "GPU Utilization";
 		keyV["values"] = gpuUtil;
 		avgVal.push(keyV);
 		var keyV = {};
-		keyV["key"] = "Avg. GPU Memory Utilization";
+		keyV["key"] = "GPU Memory Utilization";
 		keyV["values"] = memGPU;
 		avgVal.push(keyV);
 		
 		plotAvg();
 	});
-	}
-	function plotAvgPie(){
-		nv.addGraph(function() {
-				console.log(cpu)
-				var chart = nv.models.pieChart()
-							.x(function(d) { return d.key })
-							.y(function(d) { return d.value })
-							.color(d3.scale.category20().range().slice(3))
-							.width(350)
-							.height(350)
-							.donut(true)
-							.id('donut2')
-							.padAngle(.08)
-							.titleOffset(-30)
-							.donutRatio(0.6);
-							
-				var chart1 = nv.models.pieChart()
-							.x(function(d) { return d.key })
-							.y(function(d) { return d.value })
-							.color(d3.scale.category20().range().slice(3))
-							.width(400)
-							.height(400)
-							.donut(true)
-							.id('donut2')
-							.titleOffset(-30)
-							.title("woot");
-				
-				chart.title("CPU Utilization");
-				chart.pie.donutLabelsOutside(true).donut(true);
-
-				d3.select("body").select("#div21").select("#div211").select("#div211b").select("#div211b1").select('#chart4')
-				  .datum(pieChartCPU)
-				  .transition().duration(1200)
-				  .call(chart);
-				
-				d3.select("body").select("#div21").select("#div211").select("#div211b").select("#div211b1").select('#chart5')
-				  .datum(pieChartCPU)
-				  .transition().duration(1200)
-				  .call(chart1);
-
-				nv.utils.windowResize(chart.update);
-
-				return chart;
-			});
 	}
 	function plotAvg(){
 		nv.addGraph(function() {
@@ -384,34 +394,14 @@
 							.duration(350)
 							.reduceXTicks(true)
 							.rotateLabels(0) 
-							.showControls(true)
-							.groupSpacing(0.1);
+							.showControls(false)
+							.groupSpacing(0.5);
+							//.showValues(true);
 				chart.xAxis.axisLabel('Application');
-				chart.yAxis.axisLabel('Avg. Utilization (in %)');
-
-				d3.select("body").select("#div21").select("#div211").select("#div211b").select("#div211b1").select('#chart4')
-				  .datum(avgVal)
-				  .call(chart);
-
-				nv.utils.windowResize(chart.update);
-
-				return chart;
-			});
-	}
-	
-	function plotAvgMetric(){
-		nv.addGraph(function() {
-				var chart = nv.models.multiBarChart()
-							.x(function(d) { return d.label })
-							.y(function(d) { return d.value })
-							.duration(350)
-							.reduceXTicks(true)
-							.rotateLabels(0) 
-							.showControls(true)
-							.groupSpacing(0.1);
-				chart.xAxis.axisLabel('Application');
-				chart.yAxis.axisLabel('Avg. Utilization (in %)');
-
+				chart.yAxis.axisLabel('Average Utilization (in %)');
+            chart.forceY([0,100]);
+            chart.color(my_colors);
+        
 				d3.select("body").select("#div21").select("#div211").select("#div211b").select("#div211b1").select('#chart4')
 				  .datum(avgVal)
 				  .call(chart);
@@ -422,5 +412,430 @@
 			});
 	}
 </script>
+
+<script type="text/javascript">
+	// script for loading data in trellis form for Application 1
+	/*var margin = {top: 20, right: 40, bottom: 150, left: 60},
+			width = 800 - margin.left - margin.right,
+			height = 1500 - margin.top - margin.bottom,
+			contextHeight = 40;
+			contextWidth = width * .5;*/
+	// script for loading data in trellis form for Application 1
+var margin = {top: 20, right: 40, bottom: 150, left: 60},
+		width = 800 - margin.left - margin.right,
+		height = 1500 - margin.top - margin.bottom,
+		contextHeight = 40;
+		contextWidth = width * .5;
+	
+var svg1 = d3.select("#chart-container").append("svg")
+						.attr("width", width + margin.left + margin.right)
+						.attr("height", (height + margin.top + margin.bottom));
+						
+var csvfile1= './data/cb1.csv';
+
+var svg2 = d3.select("#chart-container2").append("svg")
+					.attr("width", width + margin.left + margin.right)
+					.attr("height", (height + margin.top + margin.bottom));
+var csvfile2= './data/cbx.csv';
+					
+var svg3 = d3.select("#chart-container3").append("svg")
+					.attr("width", width + margin.left + margin.right)
+					.attr("height", (height + margin.top + margin.bottom));
+var csvfile3= './data/heaven.csv';
+
+loadTrellis(svg1, csvfile1);	
+loadTrellis(svg2, csvfile2);	
+loadTrellis(svg3, csvfile3);	
+				
+function loadTrellis(svg, csvfile){
+	var statisticData = [];					
+	d3.csv(csvfile, createChart);
+	
+	function createChart(data){
+		var parameters = [];
+		var charts = [];
+		var maxDataPoint = 0;
+		
+		for (var prop in data[0]) {
+			if (data[0].hasOwnProperty(prop)) {
+				if (prop != 'Time') {
+					parameters.push(prop);
+				}
+			}
+		};
+		
+		var parametersCount = parameters.length;
+		
+		var startTime = data[0].Time;
+		var endTime = data[data.length - 1].Time;
+		var chartHeight = height * (1 / parametersCount);
+		
+		//compute the average for each column
+		statisticData = calcMeanSdVar(data);
+		
+		data.forEach(function(d, i) {
+			for (var prop in d) {
+				if (d.hasOwnProperty(prop)) {
+					d[prop] = parseFloat(d[prop]);
+					
+					if (d[prop] > maxDataPoint) {
+						maxDataPoint = d[prop];
+					}
+				}
+			}
+			d.Time = i+1;
+		});
+		
+
+		for(var i = 0; i < parametersCount; i++){
+			charts.push(new Chart({
+									data: data.slice(),
+									id: i,
+									name: parameters[i],
+									width: width,
+									height: height * (1 / (parametersCount + 1)),
+									maxDataPoint: maxDataPoint,
+									svg: svg,
+									margin: margin,
+									//mean: statisticData[i],
+									showBottomAxis: (i == parameters.length - 1)
+								}));
+			
+		}
+		
+		// context brush for zooming and brushing
+		var contextXScale = d3.scale.linear()
+							.range([0, contextWidth])
+							.domain(charts[0].xScale.domain());	
+							
+		var contextAxis = d3.svg.axis()
+							.scale(contextXScale)
+							.tickSize(contextHeight)
+							.tickPadding(2)
+							.orient("bottom");
+		
+		var contextArea = d3.svg.area()
+							.interpolate("monotone")
+							.x(function(d) { return contextXScale(d.Time); })
+							.y0(contextHeight)
+							.y1(0);
+
+		var brush = d3.svg.brush()
+						.x(contextXScale)
+						.on("brush", onBrush)
+						.on("brushend", brushend);
+
+		var context = svg.append("g")
+						.attr("class","context")
+						.attr("transform", "translate(" + (margin.left + width * .25) + "," + 30 + ")");
+		//console.log((margin.left + width * .25));
+		//console.log((height + margin.top + chartHeight));
+		context.append("g")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0,0)")
+				.call(contextAxis)
+											
+		context.append("g")
+				.attr("class", "x brush")
+				.call(brush)
+				.selectAll("rect")
+				.attr("y", 0)
+				.attr("height", contextHeight);
+		
+		context.append("text")
+				.attr("class","instructions")
+				.attr("transform", "translate(20," + -10 + ")")
+				.text('Click and drag below to zoom the data');
+				
+		
+							
+		function onBrush(){
+			var b = brush.empty() ? contextXScale.domain() : brush.extent();
+			for(var i = 0; i < parametersCount; i++){
+				charts[i].showOnly(b);
+			}
+		}
+		function brushend() {
+		
+			  var extent = brush.extent();
+			  // Retrieve brushed data
+			  var extentData = data.filter(function(d) { return Math.floor(extent[0]) <= d.Time && d.Time <= Math.ceil(extent[1]) });
+			  
+			  
+			  statisticData = calcMeanSdVar(extentData);
+			  for(var i = 0; i < parametersCount; i++){
+				var name = ""
+				if(i==0){
+					name = "Mean CPU 1 Utilization = " + Math.round(statisticData[i]) + "%";
+				}
+				else if(i==1){
+					name = "Mean CPU 2 Utilization = " + Math.round(statisticData[i]) + "%";
+				}
+				else if(i==2){
+					name = "Mean CPU 3 Utilization = " + Math.round(statisticData[i]) + "%";
+				}
+				else if(i==3){
+					name = "Mean CPU 4 Utilization = " + Math.round(statisticData[i]) + "%";
+				}
+				else if(i==4){
+					name = "Mean CPU 5 Utilization = " + Math.round(statisticData[i]) + "%";
+				}
+				else if(i==5){
+					name = "Mean CPU 6 Utilization = " + Math.round(statisticData[i]) + "%";
+				}
+				else if(i==6){
+					name = "Mean CPU 7 Utilization = " + Math.round(statisticData[i]) + "%";
+				}
+				else if(i==7){
+					name = "Mean CPU 8 Utilization = " + Math.round(statisticData[i]) + "%";
+				}
+				else if(i==8){
+					name = "Mean Overall CPU Utilization = " + Math.round(statisticData[i]) + "%";
+				}
+				else if(i==9){
+					name = "Mean RAM Usage (in %) = " + Math.round(statisticData[i]) + "%";
+				}
+				else if(i==10){
+					name = "Mean GPU Utilization (in %) = " + Math.round(statisticData[i]) + "%";
+				}
+				else if(i==11){
+					name = "Mean GPU Memory Utilization (in %) = " + Math.round(statisticData[i]) + "%";
+				}
+				charts[i].chartContainer.select(".country-title").text(name);
+				
+			  }
+		}
+		function calcMeanSdVar(values) {
+		  var numberVal = values.length;
+		  var param = ["cpu1", "cpu2", "cpu3", "cpu4", "cpu5", "cpu6", "cpu7", "cpu8", "cpu", "gpuutil", "ram", "gpumem"];
+		  var c1=0, c2=0, c3=0, c4=0, c5=0, c6=0, c7=0, c8=0, c=0, g=0, gm=0, rm=0;
+		  for(var m=0;m<numberVal;m++){
+			c1 = c1 + parseInt(values[m].cpu1);
+			c2 = c2 + parseInt(values[m].cpu2);
+			c3 = c3 + parseInt(values[m].cpu3);
+			c4 = c4 + parseInt(values[m].cpu4);
+			c5 = c5 + parseInt(values[m].cpu5);
+			c6 = c6 + parseInt(values[m].cpu6);
+			c7 = c7 + parseInt(values[m].cpu7);
+			c8 = c8 + parseInt(values[m].cpu8);
+			c = c + parseInt(values[m].cpu);
+			g = g + parseInt(values[m].gpuutil);
+			gm = gm + parseInt(values[m].gpumem);
+			rm = rm + parseInt(values[m].ram);
+		  }
+		  c1 = c1/numberVal;
+		  c2 = c2/numberVal;
+		  c3 = c3/numberVal;
+		  c4 = c4/numberVal;
+		  c5 = c5/numberVal;
+		  c6 = c6/numberVal;
+		  c7 = c7/numberVal;
+		  c8 = c8/numberVal;
+		  c = c/numberVal;
+		  g = g/numberVal;
+		  gm = gm/numberVal;
+		  rm =rm/numberVal;
+		  var mean =  [c1, c2, c3, c4, c5, c6, c7, c8, c, rm, g, gm];
+		  return mean;
+		}
+		
+	}
+	
+	function Chart(options){
+		this.chartData = options.data;
+		this.width = options.width;
+		this.height = options.height;
+		this.maxDataPoint = options.maxDataPoint;
+		this.svg = options.svg;
+		this.id = options.id;
+		this.name = options.name;
+		this.margin = options.margin;
+		this.showBottomAxis = options.showBottomAxis;
+		//this.mean = options.mean;
+		
+		var localName = this.name;
+		
+		this.xScale = d3.scale.linear()
+							.range([0, this.width])
+							.domain(d3.extent(this.chartData.map(function(d) { return d.Time; })));
+		
+		this.yScale = d3.scale.linear()
+						.range([this.height,0])
+						.domain([0,100])
+
+		var xS = this.xScale;
+		var yS = this.yScale;
+		
+		this.area = d3.svg.area()
+						.interpolate("basis")
+						.x(function(d) { return xS(d.Time); })
+						.y0(this.height)
+						.y1(function(d) { return yS(d[localName]); });
+						
+		this.svg.append("defs").append("clipPath")
+							.attr("id", "clip-" + this.id)
+							.append("rect")
+							.attr("width", this.width)
+							.attr("height", this.height);
+							
+		this.chartContainer = svg.append("g")
+								.attr('class',this.name.toLowerCase())
+								.attr("transform", "translate(" + this.margin.left + "," + (this.margin.top + (this.height * this.id) + (10 * this.id) + contextHeight + 70) + ")");
+		
+		this.chartContainer.append("path")
+							.data([this.chartData])
+							.attr("class", "chart")
+							.attr("clip-path", "url(#clip-" + this.id + ")")
+							.attr("d", this.area);
+										
+		this.xAxisTop = d3.svg.axis().scale(this.xScale).orient("top");
+		this.xAxisBottom = d3.svg.axis().scale(this.xScale).orient("bottom");
+		
+		this.chartContainer.append("text")
+			.attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+			.attr("transform", "translate("+ -50 +","+(this.height/2)+")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
+			.text("Utilization (in %)");
+
+		if(this.id == 0){
+			this.chartContainer.append("g")
+						.attr("class", "x axis")
+						.attr("transform", "translate(0,0)")
+						.call(this.xAxisTop);
+						
+			this.chartContainer.append("text")
+			.attr("text-anchor", "start")  // this makes it easy to centre the text as the transform is applied to the anchor
+			.attr("transform", "translate("+ (this.width - 60) + ",7)")  // text is drawn off the screen top left, move down and out and rotate
+			.text("Time (in sec)");
+		}
+		
+		if(this.showBottomAxis){
+				this.chartContainer.append("g")
+						.attr("class", "x axis")
+						.attr("transform", "translate(0," + this.height + ")")
+						.call(this.xAxisBottom);
+			}  
+			
+		this.yAxis = d3.svg.axis().scale(this.yScale).orient("left").ticks(3);
+			
+		this.chartContainer.append("g")
+							.attr("class", "y axis")
+							.attr("transform", "translate(-15,0)")
+							.call(this.yAxis);
+		if(this.name == "cpu1"){
+			this.name = "Mean CPU 1 Utilization = " + Math.round(statisticData[this.id]) + "%";
+		}
+		else if(this.name == "cpu2"){
+			this.name = "Mean CPU 2 Utilization = " + Math.round(statisticData[this.id]) + "%";
+		}
+		else if(this.name == "cpu3"){
+			this.name = "Mean CPU 3 Utilization = " + Math.round(statisticData[this.id]) + "%";
+		}
+		else if(this.name == "cpu4"){
+			this.name = "Mean CPU 4 Utilization = " + Math.round(statisticData[this.id]) + "%";
+		}
+		else if(this.name == "cpu5"){
+			this.name = "Mean CPU 5 Utilization = " + Math.round(statisticData[this.id]) + "%";
+		}
+		else if(this.name == "cpu6"){
+			this.name = "Mean CPU 6 Utilization = " + Math.round(statisticData[this.id]) + "%";
+		}
+		else if(this.name == "cpu7"){
+			this.name = "Mean CPU 7 Utilization = " + Math.round(statisticData[this.id]) + "%";
+		}
+		else if(this.name == "cpu8"){
+			this.name = "Mean CPU 8 Utilization = " + Math.round(statisticData[this.id]) + "%";
+		}
+		else if(this.name == "cpu"){
+			this.name = "Mean Overall CPU Utilization = " + Math.round(statisticData[this.id]) + "%";
+		}
+		else if(this.name == "ram"){
+			this.name = "Mean RAM Usage (in %) = " + Math.round(statisticData[this.id]) + "%";
+		}
+		else if(this.name == "gpuutil"){
+			this.name = "Mean GPU Utilization (in %) = " + Math.round(statisticData[this.id]) + "%";
+		}
+		else if(this.name == "gpumem"){
+			this.name = "Mean GPU Memory Utilization (in %) = " + Math.round(statisticData[this.id]) + "%";
+		}
+		
+		this.chartContainer.append("text")
+							.attr("class","country-title")
+							.attr("transform", "translate(40,40)")
+							.text(this.name);
+	
+		
+	}
+		
+	Chart.prototype.showOnly = function(b){
+			this.xScale.domain(b);
+			this.chartContainer.select("path").data([this.chartData]).attr("d", this.area);
+			this.chartContainer.select(".x.axis.top").call(this.xAxisTop);
+			this.chartContainer.select(".x.axis.bottom").call(this.xAxisBottom);
+	}
+}
+</script>
+
+
+<script>
+	//handling button 1 (Trellis mode)
+	var modal = document.getElementById('myModal');
+
+	var btn = document.getElementById("myBtn");
+
+	var span = document.getElementsByClassName("close")[0];
+
+	btn.onclick = function() {
+		modal.style.display = "block";
+	}
+
+	span.onclick = function() {
+		modal.style.display = "none";
+	}
+
+	window.onclick = function(event) {
+		if (event.target == modal) {
+			modal.style.display = "none";
+		}
+	}
+	//handling button 2 (Trellis mode)
+	var modal2 = document.getElementById('myModal2');
+
+	var btn2 = document.getElementById("myBtn2");
+
+	var span2 = document.getElementsByClassName("close2")[0];
+ 
+	btn2.onclick = function() {
+		modal2.style.display = "block";
+	}
+
+	span2.onclick = function() {
+		modal2.style.display = "none";
+	}
+	window.onclick = function(event) {
+		if (event.target == modal2) {
+			modal2.style.display = "none";
+		}
+	}
+	// handling button 3 (Trellis mode)
+	var modal3 = document.getElementById('myModal3');
+
+	var btn3 = document.getElementById("myBtn3");
+
+	var span3 = document.getElementsByClassName("close3")[0];
+
+	btn3.onclick = function() {
+		modal3.style.display = "block";
+	}
+
+	span3.onclick = function() {
+		modal3.style.display = "none";
+	}
+	window.onclick = function(event) {
+		if (event.target == modal3) {
+			modal3.style.display = "none";
+		}
+	}
+</script>
+
 </body>
 </html>
