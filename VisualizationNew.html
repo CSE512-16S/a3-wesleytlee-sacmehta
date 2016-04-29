@@ -131,7 +131,19 @@
        })
        return html;
      }
-        
+
+   function mod_tooltip2 (d) {
+       
+       console.log(JSON.stringify(d));
+       var html = "<b>"+d.value + "</b><br>";
+
+       d.series.forEach(function(elem){
+         html += "<text style='color:"+elem.color+"'>"
+                 +elem.key+"</text> : <b>"+Math.round(elem.value)+"% </b> <br>";
+       })
+       return html;
+     }
+     
     function renameVars (name) {
         if (name == "ram") {
             return "RAM Usage";
@@ -390,7 +402,7 @@
 				//console.log(JSON.stringify(appWiseData))
 				var chart = nv.models.multiBarChart()
 							.x(function(d) { return d.label })
-							.y(function(d) { return d.value })
+							.y(function(d) { return d.value }) 
 							.duration(350)
 							.reduceXTicks(true)
 							.rotateLabels(0) 
@@ -401,6 +413,7 @@
 				chart.yAxis.axisLabel('Average Utilization (in %)');
             chart.forceY([0,100]);
             chart.color(my_colors);
+            chart.tooltip.contentGenerator(mod_tooltip2);
         
 				d3.select("body").select("#div21").select("#div211").select("#div211b").select("#div211b1").select('#chart4')
 				  .datum(avgVal)
@@ -421,6 +434,7 @@
 			contextHeight = 40;
 			contextWidth = width * .5;*/
 	// script for loading data in trellis form for Application 1
+
 var margin = {top: 20, right: 40, bottom: 150, left: 60},
 		width = 800 - margin.left - margin.right,
 		height = 1500 - margin.top - margin.bottom,
@@ -448,6 +462,7 @@ loadTrellis(svg2, csvfile2);
 loadTrellis(svg3, csvfile3);	
 				
 function loadTrellis(svg, csvfile){
+	
 	var statisticData = [];					
 	d3.csv(csvfile, createChart);
 	
@@ -485,6 +500,7 @@ function loadTrellis(svg, csvfile){
 			}
 			d.Time = i+1;
 		});
+		
 		
 
 		for(var i = 0; i < parametersCount; i++){
@@ -562,43 +578,43 @@ function loadTrellis(svg, csvfile){
 			  var extentData = data.filter(function(d) { return Math.floor(extent[0]) <= d.Time && d.Time <= Math.ceil(extent[1]) });
 			  
 			  
-			  statisticData = calcMeanSdVar(extentData);
+			  var statisticData = calcMeanSdVar(extentData);
 			  for(var i = 0; i < parametersCount; i++){
 				var name = ""
-				if(i==0){
+				if(i==4){
 					name = "Mean CPU 1 Utilization = " + Math.round(statisticData[i]) + "%";
 				}
-				else if(i==1){
+				else if(i==5){
 					name = "Mean CPU 2 Utilization = " + Math.round(statisticData[i]) + "%";
 				}
-				else if(i==2){
+				else if(i==6){
 					name = "Mean CPU 3 Utilization = " + Math.round(statisticData[i]) + "%";
 				}
-				else if(i==3){
+				else if(i==7){
 					name = "Mean CPU 4 Utilization = " + Math.round(statisticData[i]) + "%";
 				}
-				else if(i==4){
+				else if(i==8){
 					name = "Mean CPU 5 Utilization = " + Math.round(statisticData[i]) + "%";
 				}
-				else if(i==5){
+				else if(i==9){
 					name = "Mean CPU 6 Utilization = " + Math.round(statisticData[i]) + "%";
 				}
-				else if(i==6){
+				else if(i==10){
 					name = "Mean CPU 7 Utilization = " + Math.round(statisticData[i]) + "%";
 				}
-				else if(i==7){
+				else if(i==11){
 					name = "Mean CPU 8 Utilization = " + Math.round(statisticData[i]) + "%";
 				}
-				else if(i==8){
+				else if(i==3){
 					name = "Mean Overall CPU Utilization = " + Math.round(statisticData[i]) + "%";
 				}
-				else if(i==9){
+				else if(i==2){
 					name = "Mean RAM Usage (in %) = " + Math.round(statisticData[i]) + "%";
 				}
-				else if(i==10){
+				else if(i==0){
 					name = "Mean GPU Utilization (in %) = " + Math.round(statisticData[i]) + "%";
 				}
-				else if(i==11){
+				else if(i==1){
 					name = "Mean GPU Memory Utilization (in %) = " + Math.round(statisticData[i]) + "%";
 				}
 				charts[i].chartContainer.select(".country-title").text(name);
@@ -635,7 +651,7 @@ function loadTrellis(svg, csvfile){
 		  g = g/numberVal;
 		  gm = gm/numberVal;
 		  rm =rm/numberVal;
-		  var mean =  [c1, c2, c3, c4, c5, c6, c7, c8, c, rm, g, gm];
+		  var mean =  [g, gm, rm , c, c1, c2, c3, c4, c5, c6, c7, c8];
 		  return mean;
 		}
 		
