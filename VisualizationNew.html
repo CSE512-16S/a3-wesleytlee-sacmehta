@@ -21,9 +21,10 @@
 <br>
 
 <div class='col-sm-12 col-md-8' id="div1">
+      
 		<div class="panel panel-card" id="div11">
 			<div class="panel-title" id="div11a">
-				<h5 class='no-margin m-b'>CPU and GPU Utilization statistics for Application 1</h5>
+				<h5 class='no-margin m-b'>CPU and GPU Utilization statistics for Heaven Benchmark 4.0</h5>
 			</div>
 			<div class="panel-title" id="div11c">
 				<button type="button" class="button button1" id="myBtn">View Details</button>
@@ -34,7 +35,7 @@
 				  <div class="modal-content">
 					<span class="close" id="close">x</span>
 						<div id="chart-container" class="panel panel-card">
-							<h2>Data in detail for Application 1</h2>
+							<h2>Data in detail for Heaven Benchmark 4.0</h2>
 						</div>
 				  </div>
 			</div>
@@ -47,7 +48,7 @@
 		</div>
 		<div class="panel panel-card" id="div12">
 			<div class="panel-title" id="div12a">
-				<h5 class='no-margin m-b'>CPU and GPU Utilization statistics for Application 2</h5>
+				<h5 class='no-margin m-b'>CPU and GPU Utilization statistics for Cinebench (Single Core)</h5>
 			</div>
 			<div class="panel-title" id="div12c">
 				<button type="button" class="button button1" id="myBtn2">View Details</button>
@@ -60,7 +61,7 @@
 				  <div class="modal-content">
 					<span class="close2">x</span>
 						<div id="chart-container2" class="panel panel-card">
-							<h2>Data in detail for Application 2</h2>
+							<h2>Data in detail for Cinebench (Single Core)</h2>
 						</div>
 				  </div>
 			</div>
@@ -72,9 +73,9 @@
 				</div>
 			</div>
 		</div>
-		<div class="panel panel-card" id="div13">
+      <div class="panel panel-card" id="div13">
 			<div class="panel-title" id="div13a">
-				<h5 class='no-margin m-b'>CPU and GPU Utilization statistics for Application 3</h5>
+				<h5 class='no-margin m-b'>CPU and GPU Utilization statistics for Cinebench (Multi Core)</h5>
 			</div>
 			<div class="panel-title" id="div13c">
 				<button type="button" class="button button1" id="myBtn3">View Details</button>
@@ -87,7 +88,7 @@
 					<span class="close3">x</span>
 					<div class="container">
 						<div id="chart-container3" class="panel panel-card">
-							<h2>Data in detail for Application 3</h2>
+							<h2>Data in detail for Cinebench (Multi Core)</h2>
 						</div>
 					</div>
 				  </div>
@@ -123,23 +124,23 @@
 	var appWiseData = [];
 
    function mod_tooltip (d) {
-       var html = "Time: <b>"+d.value+"</b>s <br>";
+       var html = "<b>Time: </b>"+d.value+" sec <br>";
 
        d.series.forEach(function(elem){
-         html += "<text style='color:"+elem.color+"'>"
-                 +elem.key+"</text> : <b>"+Math.round(elem.value)+"% </b> <br>";
+         html += "<text style='color:"+elem.color+"'><b>"
+                 +elem.key+"</b></text>: "+Math.round(elem.value)+"% <br>";
        })
        return html;
      }
 
    function mod_tooltip2 (d) {
        
-       console.log(JSON.stringify(d));
-       var html = "<b>"+d.value + "</b><br>";
+       //console.log(JSON.stringify(d));
+       var html = "<b>Application: </b>"+d.value + "<br>";
 
        d.series.forEach(function(elem){
-         html += "<text style='color:"+elem.color+"'>"
-                 +elem.key+"</text> : <b>"+Math.round(elem.value)+"% </b> <br>";
+         html += "<text style='color:"+elem.color+"'><b>"
+                 +elem.key+"</b></text>: "+Math.round(elem.value)+"% <br>";
        })
        return html;
      }
@@ -158,7 +159,7 @@
     
     var my_colors = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c'];
 	
-    d3.csv("./data/cb1.csv", function(error, data) {
+    d3.csv("./data/heaven.csv", function(error, data) {
 		var labelVar = "Time";
 		var varNames = d3.keys(data[0]).filter(function (key) { return key !== labelVar});//	ram	gpuutil	Memory Utilization
 		var overallName = d3.keys(data[0]).filter(function (key) { 
@@ -173,10 +174,10 @@
 		
 		//avgVal.cpu.push({value: cpuUtilAvg, label: 1});
 		
-		cpu.push({label: "App 1", value: cpuUtilAvg});
-		ram.push({label: "App 1", value: ramAvg});
-		gpuUtil.push({label: "App 1", value: gpuUtilAvg})
-		memGPU.push({label: "App 1", value: gpuMemAvg})
+		cpu.push({label: "Heaven Benchmark 4.0", value: cpuUtilAvg});
+		ram.push({label: "Heaven Benchmark 4.0", value: ramAvg});
+		gpuUtil.push({label: "Heaven Benchmark 4.0", value: gpuUtilAvg})
+		memGPU.push({label: "Heaven Benchmark 4.0", value: gpuMemAvg})
 		
 		
 		
@@ -234,7 +235,7 @@
 	});
 	
 	function loadB(){
-	d3.csv("./data/cbx.csv", function(error, data) {
+	d3.csv("./data/cb1.csv", function(error, data) {
 		var labelVar = "Time";
 		var varNames = d3.keys(data[0]).filter(function (key) { return key !== labelVar});//	ram	gpuutil	Memory Utilization
 		var overallName = d3.keys(data[0]).filter(function (key) { 
@@ -247,10 +248,10 @@
 		var cpuUtilAvg = d3.mean(data, function(d){return d["cpu"]});
 		var gpuMemAvg = d3.mean(data, function(d){return d["gpumem"]});
 		
-		cpu.push({label: "App 2", value: cpuUtilAvg});
-		ram.push({label: "App 2", value: ramAvg});
-		gpuUtil.push({label: "App 2", value: gpuUtilAvg})
-		memGPU.push({label: "App 2", value: gpuMemAvg})
+		cpu.push({label: "Cinebench (Single Core)", value: cpuUtilAvg});
+		ram.push({label: "Cinebench (Single Core)", value: ramAvg});
+		gpuUtil.push({label: "Cinebench (Single Core)", value: gpuUtilAvg})
+		memGPU.push({label: "Cinebench (Single Core)", value: gpuMemAvg})
 		
 		
 		var seriesData = overallName.map(function (name) {
@@ -307,7 +308,7 @@
 	});
 	}
 	function loadC(){
-		d3.csv("./data/heaven.csv", function(error, data) {
+		d3.csv("./data/cbx.csv", function(error, data) {
 		var labelVar = "Time";
 		var varNames = d3.keys(data[0]).filter(function (key) { return key !== labelVar});//	ram	gpuutil	Memory Utilization
 		var overallName = d3.keys(data[0]).filter(function (key) { 
@@ -320,10 +321,10 @@
 		var cpuUtilAvg = d3.mean(data, function(d){return d["cpu"]});
 		var gpuMemAvg = d3.mean(data, function(d){return d["gpumem"]});
 		
-		cpu.push({label: "App 3", value: cpuUtilAvg});
-		ram.push({label: "App 3", value: ramAvg});
-		gpuUtil.push({label: "App 3", value: gpuUtilAvg});
-		memGPU.push({label: "App 3", value: gpuMemAvg});
+		cpu.push({label: "Cinebench (Multi Core)", value: cpuUtilAvg});
+		ram.push({label: "Cinebench (Multi Core)", value: ramAvg});
+		gpuUtil.push({label: "Cinebench (Multi Core)", value: gpuUtilAvg});
+		memGPU.push({label: "Cinebench (Multi Core)", value: gpuMemAvg});
 		
 		var seriesData = overallName.map(function (name) {
 					  return {
@@ -375,15 +376,8 @@
 			nv.utils.windowResize(chart.update);
 			return chart;
 		});
-		var keyV = {};
-		keyV["key"] = "CPU Utilization";
-		keyV["values"] = cpu;
-		avgVal.push(keyV);
-		var keyV = {};
-		keyV["key"] = "RAM Usage";
-		keyV["values"] = ram;
-		avgVal.push(keyV);
-		var keyV = {};
+
+      var keyV = {};
 		keyV["key"] = "GPU Utilization";
 		keyV["values"] = gpuUtil;
 		avgVal.push(keyV);
@@ -391,6 +385,15 @@
 		keyV["key"] = "GPU Memory Utilization";
 		keyV["values"] = memGPU;
 		avgVal.push(keyV);
+		var keyV = {};
+		keyV["key"] = "RAM Usage";
+		keyV["values"] = ram;
+      avgVal.push(keyV);
+      var keyV = {};
+		keyV["key"] = "CPU Utilization";
+		keyV["values"] = cpu;
+		avgVal.push(keyV);
+
 		
 		plotAvg();
 	});
@@ -434,9 +437,9 @@
 			contextHeight = 40;
 			contextWidth = width * .5;*/
 	// script for loading data in trellis form for Application 1
-
-var margin = {top: 20, right: 40, bottom: 150, left: 60},
-		width = 800 - margin.left - margin.right,
+var wi = window.innerWidth;
+var margin = {top: 20, right: wi*.1, bottom: 150, left: wi*.12},
+		width = wi - margin.left - margin.right,
 		height = 1500 - margin.top - margin.bottom,
 		contextHeight = 40;
 		contextWidth = width * .5;
@@ -445,17 +448,17 @@ var svg1 = d3.select("#chart-container").append("svg")
 						.attr("width", width + margin.left + margin.right)
 						.attr("height", (height + margin.top + margin.bottom));
 						
-var csvfile1= './data/cb1.csv';
+var csvfile1= './data/heaven.csv';
 
 var svg2 = d3.select("#chart-container2").append("svg")
 					.attr("width", width + margin.left + margin.right)
 					.attr("height", (height + margin.top + margin.bottom));
-var csvfile2= './data/cbx.csv';
+var csvfile2= './data/cb1.csv';
 					
 var svg3 = d3.select("#chart-container3").append("svg")
 					.attr("width", width + margin.left + margin.right)
 					.attr("height", (height + margin.top + margin.bottom));
-var csvfile3= './data/heaven.csv';
+var csvfile3= './data/cbx.csv';
 
 loadTrellis(svg1, csvfile1);	
 loadTrellis(svg2, csvfile2);	
@@ -508,8 +511,8 @@ function loadTrellis(svg, csvfile){
 									data: data.slice(),
 									id: i,
 									name: parameters[i],
-									width: width,
-									height: height * (1 / (parametersCount + 1)),
+									width: width*0.9,
+									height: height * (1 / (parametersCount + 5)),
 									maxDataPoint: maxDataPoint,
 									svg: svg,
 									margin: margin,
@@ -543,7 +546,7 @@ function loadTrellis(svg, csvfile){
 
 		var context = svg.append("g")
 						.attr("class","context")
-						.attr("transform", "translate(" + (margin.left + width * .25) + "," + 30 + ")");
+						.attr("transform", "translate(" + (margin.left + width * .25) + "," + 40 + ")");
 		//console.log((margin.left + width * .25));
 		//console.log((height + margin.top + chartHeight));
 		context.append("g")
@@ -609,16 +612,15 @@ function loadTrellis(svg, csvfile){
 					name = "Mean Overall CPU Utilization = " + Math.round(statisticData[i]) + "%";
 				}
 				else if(i==2){
-					name = "Mean RAM Usage (in %) = " + Math.round(statisticData[i]) + "%";
+					name = "Mean RAM Usage = " + Math.round(statisticData[i]) + "%";
 				}
 				else if(i==0){
-					name = "Mean GPU Utilization (in %) = " + Math.round(statisticData[i]) + "%";
+					name = "Mean GPU Utilization = " + Math.round(statisticData[i]) + "%";
 				}
 				else if(i==1){
-					name = "Mean GPU Memory Utilization (in %) = " + Math.round(statisticData[i]) + "%";
+					name = "Mean GPU Memory Utilization = " + Math.round(statisticData[i]) + "%";
 				}
 				charts[i].chartContainer.select(".country-title").text(name);
-				
 			  }
 		}
 		function calcMeanSdVar(values) {
@@ -670,6 +672,7 @@ function loadTrellis(svg, csvfile){
 		//this.mean = options.mean;
 		
 		var localName = this.name;
+      var color;
 		
 		this.xScale = d3.scale.linear()
 							.range([0, this.width])
@@ -696,14 +699,66 @@ function loadTrellis(svg, csvfile){
 							
 		this.chartContainer = svg.append("g")
 								.attr('class',this.name.toLowerCase())
-								.attr("transform", "translate(" + this.margin.left + "," + (this.margin.top + (this.height * this.id) + (10 * this.id) + contextHeight + 70) + ")");
+								.attr("transform", "translate(" + this.margin.left + "," + (this.margin.top + (this.height * this.id) + (30 * this.id) + contextHeight + 70) + ")");
 		
+      if(this.name == "cpu1"){
+			this.name = "Mean CPU 1 Utilization = " + Math.round(statisticData[this.id]) + "%";
+         color = my_colors[3];
+		}
+		else if(this.name == "cpu2"){
+			this.name = "Mean CPU 2 Utilization = " + Math.round(statisticData[this.id]) + "%";
+         color = my_colors[3];
+      }
+		else if(this.name == "cpu3"){
+			this.name = "Mean CPU 3 Utilization = " + Math.round(statisticData[this.id]) + "%";
+         color = my_colors[3];
+ 		}
+		else if(this.name == "cpu4"){
+			this.name = "Mean CPU 4 Utilization = " + Math.round(statisticData[this.id]) + "%";
+         color = my_colors[3];
+      }
+		else if(this.name == "cpu5"){
+			this.name = "Mean CPU 5 Utilization = " + Math.round(statisticData[this.id]) + "%";
+		   color = my_colors[3];
+      }
+		else if(this.name == "cpu6"){
+			this.name = "Mean CPU 6 Utilization = " + Math.round(statisticData[this.id]) + "%";
+		   color = my_colors[3];
+      }
+		else if(this.name == "cpu7"){
+			this.name = "Mean CPU 7 Utilization = " + Math.round(statisticData[this.id]) + "%";
+		   color = my_colors[3];
+      }
+		else if(this.name == "cpu8"){
+			this.name = "Mean CPU 8 Utilization = " + Math.round(statisticData[this.id]) + "%";
+         color = my_colors[3];
+		}
+		else if(this.name == "cpu"){
+			this.name = "Mean Overall CPU Utilization = " + Math.round(statisticData[this.id]) + "%";
+         color = my_colors[3];
+      }
+		else if(this.name == "ram"){
+			this.name = "Mean RAM Usage = " + Math.round(statisticData[this.id]) + "%";
+         color = my_colors[2];
+      }
+		else if(this.name == "gpuutil"){
+			this.name = "Mean GPU Utilization = " + Math.round(statisticData[this.id]) + "%";
+         color = my_colors[0];
+		}
+		else if(this.name == "gpumem"){
+			this.name = "Mean GPU Memory Utilization = " + Math.round(statisticData[this.id]) + "%";
+         color = my_colors[1];
+		}
+      		
 		this.chartContainer.append("path")
 							.data([this.chartData])
 							.attr("class", "chart")
 							.attr("clip-path", "url(#clip-" + this.id + ")")
-							.attr("d", this.area);
-										
+							.attr("d", this.area)
+                     .style("fill",color);
+                    
+                     
+                     
 		this.xAxisTop = d3.svg.axis().scale(this.xScale).orient("top");
 		this.xAxisBottom = d3.svg.axis().scale(this.xScale).orient("bottom");
 		
@@ -712,9 +767,9 @@ function loadTrellis(svg, csvfile){
 			.attr("transform", "translate("+ -50 +","+(this.height/2)+")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
 			.text("Utilization (in %)");
 
-		if(this.id == 0){
+		if(this.id == -1){
 			this.chartContainer.append("g")
-						.attr("class", "x axis")
+						.attr("class", "x axis top")
 						.attr("transform", "translate(0,0)")
 						.call(this.xAxisTop);
 						
@@ -724,12 +779,17 @@ function loadTrellis(svg, csvfile){
 			.text("Time (in sec)");
 		}
 		
-		if(this.showBottomAxis){
+		//if(this.showBottomAxis){
 				this.chartContainer.append("g")
-						.attr("class", "x axis")
+						.attr("class", "x axis bottom")
 						.attr("transform", "translate(0," + this.height + ")")
 						.call(this.xAxisBottom);
-			}  
+                  
+             this.chartContainer.append("text")
+			.attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
+			.attr("transform", "translate("+ (this.width)/2 +"," +(this.height + 25) + ")")  // text is drawn off the screen top left, move down and out and rotate
+			.text("Time (in sec)");
+			//}  
 			
 		this.yAxis = d3.svg.axis().scale(this.yScale).orient("left").ticks(3);
 			
@@ -737,42 +797,6 @@ function loadTrellis(svg, csvfile){
 							.attr("class", "y axis")
 							.attr("transform", "translate(-15,0)")
 							.call(this.yAxis);
-		if(this.name == "cpu1"){
-			this.name = "Mean CPU 1 Utilization = " + Math.round(statisticData[this.id]) + "%";
-		}
-		else if(this.name == "cpu2"){
-			this.name = "Mean CPU 2 Utilization = " + Math.round(statisticData[this.id]) + "%";
-		}
-		else if(this.name == "cpu3"){
-			this.name = "Mean CPU 3 Utilization = " + Math.round(statisticData[this.id]) + "%";
-		}
-		else if(this.name == "cpu4"){
-			this.name = "Mean CPU 4 Utilization = " + Math.round(statisticData[this.id]) + "%";
-		}
-		else if(this.name == "cpu5"){
-			this.name = "Mean CPU 5 Utilization = " + Math.round(statisticData[this.id]) + "%";
-		}
-		else if(this.name == "cpu6"){
-			this.name = "Mean CPU 6 Utilization = " + Math.round(statisticData[this.id]) + "%";
-		}
-		else if(this.name == "cpu7"){
-			this.name = "Mean CPU 7 Utilization = " + Math.round(statisticData[this.id]) + "%";
-		}
-		else if(this.name == "cpu8"){
-			this.name = "Mean CPU 8 Utilization = " + Math.round(statisticData[this.id]) + "%";
-		}
-		else if(this.name == "cpu"){
-			this.name = "Mean Overall CPU Utilization = " + Math.round(statisticData[this.id]) + "%";
-		}
-		else if(this.name == "ram"){
-			this.name = "Mean RAM Usage (in %) = " + Math.round(statisticData[this.id]) + "%";
-		}
-		else if(this.name == "gpuutil"){
-			this.name = "Mean GPU Utilization (in %) = " + Math.round(statisticData[this.id]) + "%";
-		}
-		else if(this.name == "gpumem"){
-			this.name = "Mean GPU Memory Utilization (in %) = " + Math.round(statisticData[this.id]) + "%";
-		}
 		
 		this.chartContainer.append("text")
 							.attr("class","country-title")
