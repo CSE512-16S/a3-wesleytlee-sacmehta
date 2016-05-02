@@ -51,7 +51,6 @@ Our visualization underwent several changes between the storyboard and the final
 In our basic view, we collapsed the four seperate graphs for main performance metrics into a single graph with all four time series. This saves a lot of space while, with our color scheme and interactive capabilities, allows a user to inspect individual metrics. Additionally, mean summaries for each metric have been replaced with a bar chart summarizing performance. This summary has been delegated to the bottom of our visualization in order to prevent our visualization from being too wide, although we pay the dual costs of seperating the summary from the main graph and inviting non-meaningful comparison between the applications.
 In our detailed view, we provide more information about the CPU activity to the user. One might be interested to compare the different statistics for a given time window. For that, we used a global slider. We arranged the metrics such that overall metrics are on top while the individual CPU statistics are at bottom. This allows the user to decide which time range he/she is interested in. Also, we provide a average mean for that time range for each statistic. This will allow the user to see the overall behavior of the application. We thought of changing the global slider to local one to give user a more flexibility, but we found it too challenging to directly link up the seperate graphs with a selection tool. 
 
-
 ## Development Process
 
 Include:
@@ -68,3 +67,6 @@ Include:
   - 8 hours setting up detailed pop-ups
   - 8 hours tinkering with the design
 - Due to our unfamiliarity with D3 and our inexperience with JavaScript, the most time consuming part was coding up the first draft of our visualization
+
+### Softwares/Tools
+We have used d3 and nvd3 (a wrapper written on top of d3) in this assignment. 
