@@ -8,7 +8,7 @@ a3-wesleytlee-sacmehta
 
 ## Performance characterization of CPU and GPU centric workloads
 
-For A3, we decided to examine the CPU and GPU workloads of various applications. We collected data on the following three applications:
+Performance characterization is a critical task for hardware companies such as Intel and AMD. This influences their design decision and help these organizations to identify the hardware bottlenecks. For A3, we decided to examine the CPU and GPU workloads of various applications. We collected data on the following three applications:
 - Heaven Benchmark 4.0 (GPU intensive)
 - Cinebench (Single Core) (CPU intensive)
 - Cinebench (Multi Core) (CPU intensive)
