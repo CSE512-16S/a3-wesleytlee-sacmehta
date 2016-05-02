@@ -8,7 +8,9 @@ a3-wesleytlee-sacmehta
 
 ## Performance characterization of CPU and GPU centric workloads
 
-Performance characterization is a critical task for hardware companies such as Intel and AMD. This influences their design decision and help these organizations to identify the hardware bottlenecks. For A3, we decided to examine the CPU and GPU workloads of various applications. We collected data on the following three applications:
+Performance characterization is a critical task for hardware companies such as Intel and AMD. This influences their design decisions and helps these organizations to identify their hardware bottlenecks. 
+
+For A3, we decided to examine the CPU and GPU workloads of various applications. We collected data on the following three applications:
 - Heaven Benchmark 4.0 (GPU intensive)
 - Cinebench (Single Core) (CPU intensive)
 - Cinebench (Multi Core) (CPU intensive)
@@ -23,7 +25,7 @@ For collecting the data, we used following tools:
 - Logman, a windows utility for capturing CPU related statistics
 - NVIDIA SMI, nvidia's utility to capture GPU related statistics
 
-Our visualization displays these utilization rates over time for each application. The three main graphs feature a tooltip that can be used to examine performance at individual time points and a legend that allows one to focus on a subset of the four variable (single click) or a single variable (double clicking). Summaries of these three applications are provided in a fourth graph below these, which shows average CPU and GPU utilizations over time. For further examination of any single application, including looking at CPU Utilization on individual cores, you can click the "View Details" button. This calls a pop-up viewer with graphs of all the data. Additionally, this view allows one to zoom in on smaller intervals of runtime if desired.
+Our visualization displays these utilization rates over time for each application. The three main graphs feature a tooltip that can be used to examine performance at individual time points and a legend that allows one to focus on a subset of the four variable (single click) or a single variable (double click). Summaries of these three applications are provided in a fourth graph below these three graphs and show average of CPU and GPU performance metrics over time. For further examination of any single application, including looking at CPU utilization on individual cores, you can click the "View Details" button. This calls a pop-up viewer with graphs of entire data. Additionally, this view allows one to zoom in on smaller intervals of runtime if desired.
 
 ## Running Instructions
 
@@ -35,6 +37,15 @@ For optimal viewing, please view our visualization in a large window or full-scr
 
 [Link to storyboard](storyboard.pdf?raw=true)
 
+### Changes between Storyboard and the Final Implementation
+
+Our visualization underwent several changes between the storyboard and the final implementation.
+In our basic view, we collapsed the four seperate graphs for main performance metrics into a single graph with all four time series. This saves a lot of space while, with our color scheme and interactive capabilities, still allows a user to inspect individual metrics. Additionally, mean summaries for each metric have been replaced with a bar chart summarizing performance. This summary has been designated to the bottom of our visualization in order to prevent our visualization from being too wide, although we pay the dual costs of seperating the summary from the main graph and inviting non-meaningful comparisons between the applications.
+
+In our detailed view, we implemented a global slider instead of directly allowing the user to select data on any graph. We found it too challenging to directly link up the seperate graphs with a selection tool. 
+
+We also rearranged the performance metrics. In our initial design, we put CPU statistics on top followd by GPU statistics.  However, we realized that it doesn't help choosing the time range of interest. Hence, we rearranged the metrics such that overall metrics are on top while the individual CPU statistics are at bottom. Also, we color coded these metrics corresponding to the graphs on the main page.
+
 ### Visual Encoding
 We used following color codes for representing each statistic:
 - #a6cee3
@@ -42,19 +53,12 @@ We used following color codes for representing each statistic:
 - #b2df8a
 - #33a02c
 
-These color codes are selected such that they are colorblind safe and printer friendly.
-
-
-### Changes between Storyboard and the Final Implementation
-
-Our visualization underwent several changes between the storyboard and the final implementation.
-In our basic view, we collapsed the four seperate graphs for main performance metrics into a single graph with all four time series. This saves a lot of space while, with our color scheme and interactive capabilities, allows a user to inspect individual metrics. Additionally, mean summaries for each metric have been replaced with a bar chart summarizing performance. This summary has been delegated to the bottom of our visualization in order to prevent our visualization from being too wide, although we pay the dual costs of seperating the summary from the main graph and inviting non-meaningful comparison between the applications.
-In our detailed view, we provide more information about the CPU activity to the user. One might be interested to compare the different statistics for a given time window. For that, we used a global slider. We arranged the metrics such that overall metrics are on top while the individual CPU statistics are at bottom. This allows the user to decide which time range he/she is interested in. Also, we provide a average mean for that time range for each statistic. This will allow the user to see the overall behavior of the application. We thought of changing the global slider to local one to give user a more flexibility, but we found it too challenging to directly link up the seperate graphs with a selection tool. 
+These color codes are selected such that they are distinct, colorblind safe, and printer friendly.
 
 ## Development Process
 
 Include:
-- Sachin proposed working on this application and collected the data
+- Sachin proposed working on this application and collected the data on his machine
 - Wesley was in charge of the initial storyboarding
 - When coding up the visualization, Sachin focused on basic functionality while Wesley focused on design issues
 - Development process
@@ -69,4 +73,5 @@ Include:
 - Due to our unfamiliarity with D3 and our inexperience with JavaScript, the most time consuming part was coding up the first draft of our visualization
 
 ### Softwares/Tools
-We have used d3 and nvd3 (a wrapper written on top of d3) in this assignment. 
+- For coding, we have used d3 and nvd3 (a wrapper written on top of d3). 
+- For visual encoding, we used Color Brewer. 
